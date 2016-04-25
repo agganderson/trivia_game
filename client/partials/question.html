@@ -1,0 +1,15 @@
+<div ng-controller="ansQCtrl">
+	<form role="form" ng-repeat="question in questions | limitTo: 3">
+		<input type="hidden" value="current_user" ng-model="newAns.name">
+	  <div class="form-group">
+	    <label for="question">Question:</label>
+	    <p ng-bind="question.question"></p>
+	  </div>
+	  <div class="checkbox" ng-model="newAns.answer">
+	    <input type="checkbox" value="false"><p ng-bind="question.fake1"></p>
+	    <input type="checkbox" value="true"><p ng-bind="question.correct"></p>
+	    <input type="checkbox" value="false"><p ng-bind="question.fake2"></p>
+	  </div>
+	</form>
+	<button class="btn btn-default btn-sm" ng-click="addAns()">Submit</button> || <a href="/"><button class="btn btn-default btn-sm">Cancel</button>
+</div>

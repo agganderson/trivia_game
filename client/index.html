@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang='en' ng-app='triviaApp'>
+<head>
+	<title>Trivia Game!</title>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+
+<!--     <link rel="stylesheet" type="text/css" href="./static/css/style.css">
+ -->
+    <script type="text/javascript">
+
+        var triviaApp = angular.module('triviaApp', ['ngRoute']);
+        triviaApp.config(function($routeProvider){
+            $routeProvider
+                .when('/question', {
+                    templateUrl: 'partials/question.html'
+                })
+                .when('/new_question', {
+                    templateUrl: 'partials/new_question.html'
+                })
+                .when('/stats', {
+                    templateUrl: 'partials/stats.html'
+                })
+                .otherwise({
+                    redirectTo: '/'
+                });
+        });
+
+        //USER CONTROLLER
+        triviaApp.controller('userCtrl', function($scope, $location, userFactory, questionFactory){
+            
+            $scope.users = [];
+
+            userFactory.index(function(info){
+                $scope.users = info;
+            });
+
+            $scope.addUser = function(data){
+                userFactory.create($scope.newUser, function(data){
+                    $scope.users = data;
+                    // $scope.currentUser = $scope.newUser[0];
+                    $location.path('/question');
+                });
+            }
+
+        });
+
+        //ANSWER QUESTION CONTROLLER
+        triviaApp.controller('ansQCtrl', function($scope, $location, userFactory, questionFactory){
+            $scope.users = [];
+            $scope.questions = [];
+
+            userFactory.index(function(data){
+                $scope.user = data;
+                $scope.current_user = data[0].name;
+            });
+
+            questionFactory.index(function(data){
+                $scope.questions = data;
+            });
+
+            $scope.addAns = function(data){
+                userFactory.
+            }
+
+            // questionFactory.get3questions(function(data){
+            //     $scope.questions = data;
+            // });
+
+
+        });
+
+        //NEW QUESTION CONTROLLER
+        triviaApp.controller('newQCtrl', function($scope, $location, $routeParams, questionFactory){
+            $scope.questions = [];
+            // console.log('in new question controller');
+
+            // questionFactory.index(function(info){
+            //     $scope.questions = info;
+            //     // console.log('hit index in question controller');
+            // });
+
+            $scope.addQuestion = function(data){
+                // console.log('in new question controller to add question');
+                // console.log($scope.newQuestion);
+                questionFactory.create($scope.newQuestion, function(data){
+                    $scope.questions = data;
+                });
+                $scope.newQuestion = {};
+                $location.path('/');
+            }
+        });
+
+        //QUESTION FACTORY
+        triviaApp.factory('questionFactory', function($http){
+            var factory = {};
+            var questions = [];
+
+            factory.index = function(callback){
+                // console.log('in question factory index');
+                $http.get('/questions').success(function(output){
+                    questions = output;
+                    callback(questions);
+                });
+            }
+
+            factory.create = function(info, callback){
+                // console.log('in question factory create');
+                $http.post('/questions', info).success(function(output){
+                    // console.log('in question factory create');
+                    questions.push(output);
+                    callback();
+                });
+            }
+
+            factory.get3questions = function(callback){
+                $http.get('/3questions').success(function(output){
+                    questions = output;
+                    callback(questions);
+                });
+            }
+            return factory;
+        });
+
+        //USER FACTORY
+        triviaApp.factory('userFactory', function($http){
+            var factory = {};
+            var users = [];
+
+            factory.index = function(callback){
+                $http.get('/users').success(function(output){
+                    users = output;
+                    callback(users);
+                });
+            }
+
+            factory.create = function(info, callback){
+                // console.log('in user factory create');
+                $http.post('/users', info).success(function(output){
+                    users.push(output);
+                    callback();
+                });
+            }
+            return factory;
+        });
+
+    </script>
+</head>
+<body>
+	<div class='container' ng-controller="userCtrl">
+        <a href="/">Home</a> || <a href="#/new_question">Add a Question</a> || <a href="#/stats">Stats</a> <br>
+
+        Name: <input type="text" ng-model="newUser.name"> <button class="btn btn-primary btn-sm" ng-click="addUser()">Play</button>
+
+		<div ng-view="">
+		</div>
+	</div>
+</body>
+</html>
